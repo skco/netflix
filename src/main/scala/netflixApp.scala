@@ -1,11 +1,7 @@
-import org.apache.spark
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Column, DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.{ DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.{DataTypes, DateType, DoubleType, StructField, StructType, TimestampType}
-import org.apache.spark.sql.functions.countDistinct
 
-object App {
+object netflixApp {
 
   def main(args: Array[String]): Unit = {
     val spark: SparkSession = SparkSession.builder()
@@ -13,12 +9,11 @@ object App {
       .master("local")
       .getOrCreate()
 
-      var netflixDF:DataFrame = spark.read
+      val netflixDF:DataFrame = spark.read
       .option("header", true)
       .option("delimiter", ",")
       .csv("netflix_titles.csv")
-
-       netflixDF = netflixDF.na.fill("NULL")
+      .na.fill("NULL")
 
       //count all
        println("count:",netflixDF.count())
@@ -39,8 +34,6 @@ object App {
          .count()
          .sort(col("release_year").desc)
          .show(numRows = netflixDF.count().toInt)  //show all rows
-
-
 
        val netflixExplodedOninListedDF: DataFrame= netflixDF
          .withColumn("listed_in", split(col("listed_in"), ","))
